@@ -15,7 +15,8 @@ public class Utils {
 
         for (Double aDouble : list) {
             assert writer != null;
-            writer.write(aDouble + ",");
+            writer.append(String.valueOf(aDouble));
+            writer.append("\n");
         }
         assert writer != null;
         writer.close();

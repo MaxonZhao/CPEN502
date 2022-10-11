@@ -103,7 +103,7 @@ public class Main {
             System.out.println("=====================  MODEL TRAINED SUCCESSFULLY !  =======================");
 
         try {
-            Utils.save("BinaryNoMomentum.txt", errors);
+            Utils.save("BinaryNoMomentum.csv", errors);
         } catch (IOException e) {
             System.out.println("unable to save");
             System.exit(1);
