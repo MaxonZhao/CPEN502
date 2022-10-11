@@ -148,6 +148,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         CommonOps_DDRM.add(res, this.outputLowerBound);
 
         return res;
+//        return X;
     }
 
     public DMatrixRMaj customSigmoidMatrixDerivative(DMatrixRMaj X) {
@@ -247,6 +248,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         CommonOps_DDRM.transpose(res2);
 
         CommonOps_DDRM.mult(res, res2, t);
+
         double cost = CommonOps_DDRM.elementSum(t);
         return 0.5 * cost;
     }
@@ -267,38 +269,41 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj db2 = new DMatrixRMaj(dA2.numRows, dA2dZ2.numCols);
         CommonOps_DDRM.elementMult(dA2, dA2dZ2, db2);
 
+        DMatrixRMaj dZ2 = new DMatrixRMaj(db2);
+
         DMatrixRMaj db2Compressed = new DMatrixRMaj(this.b2.numRows, this.b2.numCols);
         CommonOps_DDRM.sumRows(db2, db2Compressed);
-        CommonOps_DDRM.divide(db2Compressed, m);
+//        CommonOps_DDRM.divide(db2Compressed, m);
         this.update_parameter(db2Compressed, UPDATE_B2);
 
 
         DMatrixRMaj A1Trans = new DMatrixRMaj(A1);
         CommonOps_DDRM.transpose(A1Trans);
         DMatrixRMaj dW2 = new DMatrixRMaj(db2.numRows, A1Trans.numCols);
-        CommonOps_DDRM.mult(db2, A1Trans, dW2);
-        CommonOps_DDRM.divide(dW2, m);
+        CommonOps_DDRM.mult(dZ2, A1Trans, dW2);
+//        CommonOps_DDRM.divide(dW2, m);
         update_parameter(dW2, UPDATE_W2);
 
         DMatrixRMaj t2 = new DMatrixRMaj(db2.numRows, W2.numCols);
         DMatrixRMaj W2Trans = new DMatrixRMaj(W2);
         CommonOps_DDRM.transpose(W2Trans);
-        CommonOps_DDRM.mult(W2Trans, db2, t2);
-        DMatrixRMaj db1 = new DMatrixRMaj(t2.numRows, customSigmoidMatrixDerivative(A1).numCols);
-        CommonOps_DDRM.mult(t2, customSigmoidMatrixDerivative(A1), db1);
+        CommonOps_DDRM.mult(W2Trans, dZ2, t2);
+        DMatrixRMaj sigmoidA1 = customSigmoidMatrixDerivative(A1);
+        DMatrixRMaj db1 = new DMatrixRMaj(t2.numRows, sigmoidA1.numCols);
+        CommonOps_DDRM.elementMult(t2, sigmoidA1, db1);
 
-
+        DMatrixRMaj dZ1 = new DMatrixRMaj(db1);
 
         DMatrixRMaj db1Compressed = new DMatrixRMaj(b1.numRows, b1.numCols);
         CommonOps_DDRM.sumRows(db1, db1Compressed);
-        CommonOps_DDRM.divide(db1Compressed, m);
+//        CommonOps_DDRM.divide(db1Compressed, m);
         update_parameter(db1Compressed, UPDATE_B1);
 
         DMatrixRMaj XTrans = new DMatrixRMaj(X);
         CommonOps_DDRM.transpose(XTrans);
         DMatrixRMaj dW1 = new DMatrixRMaj(db1.numRows, XTrans.numCols);
-        CommonOps_DDRM.mult(db1, XTrans, dW1);
-        CommonOps_DDRM.divide(dW1, m);
+        CommonOps_DDRM.mult(dZ1, XTrans, dW1);
+//        CommonOps_DDRM.divide(dW1, m);
         update_parameter(dW1, UPDATE_W1);
 
 

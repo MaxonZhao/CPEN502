@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cb2a2cfb-39da-4157-8d9d-3232ba163022" name="Changes" comment="feat: complete forward and backward propagation">
+    <list default="true" id="cb2a2cfb-39da-4157-8d9d-3232ba163022" name="Changes" comment="feat: save errors in .csv format">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BinaryNoMomentum.csv" beforeDir="false" afterPath="$PROJECT_DIR$/BinaryNoMomentum.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nnLUT/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nnLUT/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utils/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utils/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +103,21 @@
       <option name="project" value="LOCAL" />
       <updated>1665469272139</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: save errors in .csv format">
+      <created>1665470065490</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1665470065490</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat: save errors in .csv format">
+      <created>1665470193108</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1665470193108</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -121,20 +136,21 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: complete forward and backward propagation" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: complete forward and backward propagation" />
+    <MESSAGE value="feat: save errors in .csv format" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: save errors in .csv format" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java</url>
-          <line>339</line>
-          <option name="timeStamp" value="6" />
+          <url>file://$PROJECT_DIR$/src/main/java/nnLUT/Main.java</url>
+          <line>65</line>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java</url>
-          <line>335</line>
-          <option name="timeStamp" value="13" />
+          <line>292</line>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

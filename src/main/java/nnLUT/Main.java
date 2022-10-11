@@ -44,7 +44,7 @@ public class Main {
                 2,
                 4,
                 1,
-                0.5,
+                0.2,
                 0.0,
                 0,
                 1.0,
@@ -60,10 +60,10 @@ public class Main {
 
 
 //        System.out.println("=====================  FORWARD RESULT  =======================");
-
-//        Cache cache = nn.forwardPropagation(binaryX);
-//        System.out.println(cache.A2);
-//        System.out.println(nn.computeCost(cache.A2));
+//
+//        Cache c = nn.forwardPropagation(binaryX);
+//        System.out.println(c.A2);
+//        System.out.println(nn.computeCost(c.A2));
 
 //        System.out.println("=====================  BACKWARD RESULT  =======================");
 
@@ -81,7 +81,7 @@ public class Main {
 //        DMatrixRMaj t = new DMatrixRMaj(A2);
 //        System.out.println(nn.customSigmoidMatrix(t));
 //        System.out.print(nn.customSigmoidMatrixDerivative(t));
-
+//
 //        nn.backwardPropagation(new Cache(null, t, null, null), binaryX, binaryY);
         double errorRate = 0;
         int epoch = 1;
