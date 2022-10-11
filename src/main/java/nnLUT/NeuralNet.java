@@ -5,9 +5,11 @@ import org.ejml.dense.row.CommonOps_DDRM;
 import org.ejml.dense.row.RandomMatrices_DDRM;
 import org.ejml.simple.SimpleMatrix;
 import utils.Numva;
+import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 class Cache {
@@ -155,19 +157,28 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
 
 
 
-        DMatrixRMaj t = new DMatrixRMaj(X.numRows, X.numCols);
-        CommonOps_DDRM.subtract(1, X, t);
+        DMatrixRMaj Xrep = new DMatrixRMaj(X);
+        DMatrixRMaj numerator = new DMatrixRMaj(Xrep.numRows, Xrep.numCols);
+        CommonOps_DDRM.scale(-1d, Xrep);
+        CommonOps_DDRM.elementPower(Math.E, Xrep, numerator);
+
+        DMatrixRMaj t = new DMatrixRMaj(numerator);
+        CommonOps_DDRM.add(t, 1d);
+
+        DMatrixRMaj denominator = new DMatrixRMaj(t.numRows, t.numCols);
+        CommonOps_DDRM.elementMult(t, t, denominator);
+
+        DMatrixRMaj res = new DMatrixRMaj(numerator.numRows, numerator.numCols);
+        CommonOps_DDRM.elementDiv(numerator, denominator, res);
+
+        DMatrixRMaj constantMx = new DMatrixRMaj(res.numRows, res.numCols);
+        CommonOps_DDRM.fill(constantMx,this.outputUpperBound - this.outputLowerBound);
+
+        DMatrixRMaj gPrime = new DMatrixRMaj(res.numRows, res.numCols);
+        CommonOps_DDRM.elementMult(constantMx, res, gPrime);
 
 
-        DMatrixRMaj res = new DMatrixRMaj(X.numRows, t.numCols);
-
-        CommonOps_DDRM.elementMult(X, t, res);
-        t = new DMatrixRMaj(res.numRows, res.numCols);
-
-        CommonOps_DDRM.fill(t, this.outputUpperBound - this.outputLowerBound);
-        CommonOps_DDRM.elementMult(t, res, res);
-
-        return res;
+        return gPrime;
     }
 
 
@@ -257,13 +268,16 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
 
         DMatrixRMaj A1 = cache.A1;
         DMatrixRMaj A2 = cache.A2;
+        DMatrixRMaj Z1 = cache.Z1;
+        DMatrixRMaj Z2 = cache.Z2;
 
         // dA2 = A2 - Y
         DMatrixRMaj dA2 = new DMatrixRMaj(A2.numRows, A2.numCols);
         CommonOps_DDRM.subtract(A2, Y, dA2);
 
-        DMatrixRMaj dA2dZ2 = this.customSigmoidMatrixDerivative(A2);
-//        DMatrixRMaj dZ2dW2 = A1;
+//        DMatrixRMaj dA2dZ2 = this.customSigmoidMatrixDerivative(A2);
+        DMatrixRMaj dA2dZ2 = this.customSigmoidMatrixDerivative(Z2);
+
 
 
         DMatrixRMaj db2 = new DMatrixRMaj(dA2.numRows, dA2dZ2.numCols);
@@ -288,9 +302,13 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj W2Trans = new DMatrixRMaj(W2);
         CommonOps_DDRM.transpose(W2Trans);
         CommonOps_DDRM.mult(W2Trans, dZ2, t2);
-        DMatrixRMaj sigmoidA1 = customSigmoidMatrixDerivative(A1);
-        DMatrixRMaj db1 = new DMatrixRMaj(t2.numRows, sigmoidA1.numCols);
-        CommonOps_DDRM.elementMult(t2, sigmoidA1, db1);
+//        DMatrixRMaj sigmoidZ1 = customSigmoidMatrixDerivative(A1);
+
+        DMatrixRMaj sigmoidZ1 = customSigmoidMatrixDerivative(Z1);
+        DMatrixRMaj db1 = new DMatrixRMaj(t2.numRows, sigmoidZ1.numCols);
+//        DMatrixRMaj db1 = new DMatrixRMaj(t2.numRows, Z1.numCols);
+
+        CommonOps_DDRM.elementMult(t2, sigmoidZ1, db1);
 
         DMatrixRMaj dZ1 = new DMatrixRMaj(db1);
 
@@ -387,13 +405,35 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
     }
 
     @Override
-    public double train(double[] X, double argValue) {
-        return 0;
+    public ArrayList<Double> train() {
+        double errorRate = 0;
+        int epoch = 1;
+        ArrayList<Double> errors = new ArrayList<Double>();
+        System.out.println("=====================  MODEL TRAINING IN PROGRESS ...  =======================");
+        do {
+            System.out.println("Training on EPOCH " + epoch++);
+            Cache cache = this.forwardPropagation(this.input);
+            errorRate = this.computeCost(cache.A2);
+            System.out.println("Error rate for current epoch: " + errorRate);
+            errors.add(errorRate);
+            Grads grads = this.backwardPropagation(cache, this.input, this.expectedOutput);
+//            this.update_parameters(grads);
+        } while (errorRate >= NeuralNetInterface.errorThreshHold);
+
+        System.out.println("=====================  MODEL TRAINED SUCCESSFULLY !  =======================");
+
+
+        return errors;
     }
 
     @Override
-    public void save(File argFile) {
-
+    public void save(String fileName, ArrayList<Double> errors) {
+        try {
+            Utils.save(fileName, errors);
+        } catch (IOException e) {
+            System.out.println("unable to save");
+            System.exit(1);
+        }
     }
 
     @Override

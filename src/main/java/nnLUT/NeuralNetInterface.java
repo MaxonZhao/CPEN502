@@ -8,6 +8,7 @@ package nnLUT;
 public interface NeuralNetInterface {
 
     final double bias = 1.0; // The input for each neurons bias weight
+    final double errorThreshHold = 0.05;
 
     /**
      * Constructor. (Cannot be declared in an interface, but your implementation will need one)

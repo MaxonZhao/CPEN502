@@ -2,6 +2,7 @@ package nnLUT;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * This interface is common to both the Neural Net and LUT interfaces.
@@ -26,13 +27,13 @@ public interface CommonInterface {
      * @param argValue The new value to learn
      * @return The error in the output for that input vector
      */
-    public double train(double [] X, double argValue);
+    public ArrayList<Double> train();
 
     /**
      * A method to write either a LUT or weights of an neural net to a file.
-     * @param argFile of type File.
+     * @param fileName of the File.
      */
-    public void save(File argFile);
+    public void save(String fileName, ArrayList<Double> errors);
 
     /**
      * Loads the LUT or neural net weights from file. The load must of course

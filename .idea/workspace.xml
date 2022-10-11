@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cb2a2cfb-39da-4157-8d9d-3232ba163022" name="Changes" comment="feat: save errors in .csv format">
+    <list default="true" id="cb2a2cfb-39da-4157-8d9d-3232ba163022" name="Changes" comment="bugfix: complete assignment">
+      <change afterPath="$PROJECT_DIR$/src/test/java/ModelTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BinaryNoMomentum.csv" beforeDir="false" afterPath="$PROJECT_DIR$/BinaryNoMomentum.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nnLUT/CommonInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nnLUT/CommonInterface.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nnLUT/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nnLUT/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nnLUT/NeuralNetInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nnLUT/NeuralNetInterface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,8 +51,8 @@
     "WebServerToolWindowFactoryState": "false",
     "last_opened_file_path": "/Users/yuefeng/course-projects/cpen502/cpen502-project/cpen502-project",
     "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
   }
 }]]></component>
   <component name="RunManager" selected="Application.nnLUT.Main">
@@ -117,7 +120,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665470193108</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="bugfix: complete assignment">
+      <created>1665473882990</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1665473882990</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -137,22 +147,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: complete forward and backward propagation" />
     <MESSAGE value="feat: save errors in .csv format" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: save errors in .csv format" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/nnLUT/Main.java</url>
-          <line>65</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/nnLUT/NeuralNet.java</url>
-          <line>292</line>
-          <option name="timeStamp" value="15" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="bugfix: complete assignment" />
+    <option name="LAST_COMMIT_MESSAGE" value="bugfix: complete assignment" />
   </component>
 </project>
