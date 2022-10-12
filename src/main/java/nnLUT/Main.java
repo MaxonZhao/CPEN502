@@ -40,7 +40,22 @@ public class Main {
         DMatrixRMaj bipolarY = new DMatrixRMaj(bipolarOutput);
 
 
-        NeuralNet binaryNeuralNet = new NeuralNet(
+        NeuralNet binaryNeuralNetWithMomentum = new NeuralNet(
+                2,
+                4,
+                1,
+                0.2,
+                0.9,
+                0.0,
+                1.0,
+                -0.5,
+                0.5,
+                true,
+                binaryX,
+                binaryY
+                );
+
+        NeuralNet binaryNeuralNetNoMomentum = new NeuralNet(
                 2,
                 4,
                 1,
@@ -50,11 +65,27 @@ public class Main {
                 1.0,
                 -0.5,
                 0.5,
+                false,
                 binaryX,
                 binaryY
-                );
+        );
 
-        NeuralNet bipolarNeuralNet = new NeuralNet(
+        NeuralNet bipolarNeuralNetWithMomentum = new NeuralNet(
+                2,
+                4,
+                1,
+                0.2,
+                0.9,
+                -1.0,
+                1.0,
+                -0.5,
+                0.5,
+                true,
+                bipolarX,
+                bipolarY
+        );
+
+        NeuralNet bipolarNeuralNetNoMomentum = new NeuralNet(
                 2,
                 4,
                 1,
@@ -64,17 +95,28 @@ public class Main {
                 1.0,
                 -0.5,
                 0.5,
+                false,
                 bipolarX,
                 bipolarY
         );
 
-        binaryNeuralNet.initializeWeights();
-        binaryNeuralNet.initializeBias();
-        bipolarNeuralNet.initializeWeights();
-        bipolarNeuralNet.initializeBias();
+//        binaryNeuralNet.initializeWeights();
+//        binaryNeuralNet.initializeBias();
+//        bipolarNeuralNet.initializeWeights();
+//        bipolarNeuralNet.initializeBias();
 
         ArrayList<Double> errors;
-        errors = binaryNeuralNet.train();
-        binaryNeuralNet.save("BinaryNoMomentum.csv", errors);
+        errors = binaryNeuralNetWithMomentum.train();
+        binaryNeuralNetWithMomentum.save("BinaryWithMomentum.csv", errors);
+
+        errors = binaryNeuralNetNoMomentum.train();
+        binaryNeuralNetWithMomentum.save("BinaryWithNoMomentum.csv", errors);
+
+        errors = bipolarNeuralNetWithMomentum.train();
+        bipolarNeuralNetWithMomentum.save("BipolarWithMomentum.csv", errors);
+
+        errors = bipolarNeuralNetNoMomentum.train();
+        bipolarNeuralNetNoMomentum.save("BipolarWithNoMomentum.csv", errors);
+
     }
 }

@@ -10,6 +10,8 @@ import utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 class Cache {
@@ -46,6 +48,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
     private static final int UPDATE_W2 = 2;
     private static final int UPDATE_B1 = 3;
     private static final int UPDATE_B2 = 4;
+    private boolean withMomentum;
 
 
     private boolean isBoolean;
@@ -75,6 +78,8 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
 
     private int m;
 
+    private Map<String, DMatrixRMaj> velocity;
+
 
     // constants
     private final double ERROR_THRESHOLD = 0.05;
@@ -90,6 +95,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
             double outputUpperBound,
             double weightLowerBound,
             double weightUpperBound,
+            boolean withMomentum,
             DMatrixRMaj input,
             DMatrixRMaj expectedOutput) {
 
@@ -105,6 +111,19 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         this.input = input;
         this.expectedOutput = expectedOutput;
         this.m = input.numCols;
+        this.withMomentum = withMomentum;
+
+        this.velocity = new HashMap<>();
+        this.initializeWeights();
+        this.initializeBias();
+        this.initializeVelocity();
+    }
+
+    private void initializeVelocity() {
+        velocity.put("dW1", new DMatrixRMaj(this.W1.numRows, this.W1.numCols));
+        velocity.put("dW2", new DMatrixRMaj(this.W2.numRows, this.W2.numCols));
+        velocity.put("db1", new DMatrixRMaj(this.b1.numRows, this.b1.numCols));
+        velocity.put("db2", new DMatrixRMaj(this.b2.numRows, this.b2.numCols));
     }
 
 
@@ -202,8 +221,8 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
 
         this.W1 = new DMatrixRMaj(this.argNumHidden, this.argNumOfInputs);
         this.W2 = new DMatrixRMaj(1, this.argNumHidden);
-        RandomMatrices_DDRM.fillUniform(this.W1, this.weightLowerBound, this.weightUpperBound, new Random(1));
-        RandomMatrices_DDRM.fillUniform(this.W2, this.weightLowerBound, this.weightUpperBound, new Random(2));
+        RandomMatrices_DDRM.fillUniform(this.W1, this.weightLowerBound, this.weightUpperBound, new Random());
+        RandomMatrices_DDRM.fillUniform(this.W2, this.weightLowerBound, this.weightUpperBound, new Random());
     }
 
     @Override
@@ -288,15 +307,20 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj db2Compressed = new DMatrixRMaj(this.b2.numRows, this.b2.numCols);
         CommonOps_DDRM.sumRows(db2, db2Compressed);
 //        CommonOps_DDRM.divide(db2Compressed, m);
-        this.update_parameter(db2Compressed, UPDATE_B2);
-
+        if (this.withMomentum)
+            this.update_parameter_momentum(db2Compressed, UPDATE_B2);
+        else
+            this.update_parameter(db2Compressed, UPDATE_B2);
 
         DMatrixRMaj A1Trans = new DMatrixRMaj(A1);
         CommonOps_DDRM.transpose(A1Trans);
         DMatrixRMaj dW2 = new DMatrixRMaj(db2.numRows, A1Trans.numCols);
         CommonOps_DDRM.mult(dZ2, A1Trans, dW2);
 //        CommonOps_DDRM.divide(dW2, m);
-        update_parameter(dW2, UPDATE_W2);
+        if (this.withMomentum)
+            this.update_parameter_momentum(dW2, UPDATE_W2);
+        else
+            this.update_parameter(dW2, UPDATE_W2);
 
         DMatrixRMaj t2 = new DMatrixRMaj(db2.numRows, W2.numCols);
         DMatrixRMaj W2Trans = new DMatrixRMaj(W2);
@@ -315,14 +339,20 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj db1Compressed = new DMatrixRMaj(b1.numRows, b1.numCols);
         CommonOps_DDRM.sumRows(db1, db1Compressed);
 //        CommonOps_DDRM.divide(db1Compressed, m);
-        update_parameter(db1Compressed, UPDATE_B1);
+        if (this.withMomentum)
+            this.update_parameter_momentum(db1Compressed, UPDATE_B1);
+        else
+            this.update_parameter(db1Compressed, UPDATE_B1);
 
         DMatrixRMaj XTrans = new DMatrixRMaj(X);
         CommonOps_DDRM.transpose(XTrans);
         DMatrixRMaj dW1 = new DMatrixRMaj(db1.numRows, XTrans.numCols);
         CommonOps_DDRM.mult(dZ1, XTrans, dW1);
 //        CommonOps_DDRM.divide(dW1, m);
-        update_parameter(dW1, UPDATE_W1);
+        if (this.withMomentum)
+            this.update_parameter_momentum(dW1, UPDATE_W1);
+        else
+            this.update_parameter(dW1, UPDATE_W1);
 
 
 
@@ -347,18 +377,97 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj t;
 
 
-        // di = i - argLearningRate * di;
+        // i = i - argLearningRate * di;
+
         lrMatrix = new DMatrixRMaj(derivative.numRows, derivative.numCols);
         CommonOps_DDRM.fill(lrMatrix, argLearningRate);
         t = new DMatrixRMaj(derivative.numRows, derivative.numCols);
         CommonOps_DDRM.elementMult(derivative, lrMatrix, t);
         switch (term){
-            case UPDATE_W1 -> CommonOps_DDRM.subtract(this.W1, t, this.W1);
-            case UPDATE_W2 -> CommonOps_DDRM.subtract(this.W2, t, this.W2);
-            case UPDATE_B1 -> CommonOps_DDRM.subtract(this.b1, t, this.b1);
-            case UPDATE_B2 -> CommonOps_DDRM.subtract(this.b2, t, this.b2);
+            case UPDATE_W1 -> {
+                CommonOps_DDRM.subtract(this.W1, t, this.W1);
+            }
+            case UPDATE_W2 -> {
+                CommonOps_DDRM.subtract(this.W2, t, this.W2);
+            }
+            case UPDATE_B1 -> {
+                CommonOps_DDRM.subtract(this.b1, t, this.b1);
+            }
+            case UPDATE_B2 -> {
+                CommonOps_DDRM.subtract(this.b2, t, this.b2);
+            }
+            default -> System.out.println("Please only update W1, W2, B1, B2");
         }
     }
+
+    public void update_parameter_momentum(DMatrixRMaj derivative, int term) {
+
+        switch (term){
+            case UPDATE_W1 -> {
+                // v["dW" + str(l + 1)] = beta * v["dW" + str(l + 1)] + (1 - beta) * grads['dW' + str(l + 1)]
+                DMatrixRMaj v = this.velocity.get("dW1");
+                DMatrixRMaj temp = new DMatrixRMaj(v);
+                CommonOps_DDRM.divide(v, 1 / this.argMomentumTerm, temp);
+                DMatrixRMaj temp2 = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.divide(derivative, 1 / (1 - this.argMomentumTerm), temp2);
+
+                DMatrixRMaj newV = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.add(temp, temp2, newV);
+                this.velocity.put("dW1", newV);
+
+                DMatrixRMaj newV2 = new DMatrixRMaj(newV.numRows, newV.numCols);
+                CommonOps_DDRM.divide(newV, this.argLearningRate, newV2);
+                CommonOps_DDRM.subtract(this.W1, newV2, this.W1);
+            }
+            case UPDATE_W2 -> {
+                DMatrixRMaj v = this.velocity.get("dW2");
+                DMatrixRMaj temp = new DMatrixRMaj(v);
+                CommonOps_DDRM.divide(v, 1 / this.argMomentumTerm, temp);
+                DMatrixRMaj temp2 = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.divide(derivative, 1 / (1 - this.argMomentumTerm), temp2);
+
+                DMatrixRMaj newV = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.add(temp, temp2, newV);
+                this.velocity.put("dW2", newV);
+
+                DMatrixRMaj newV2 = new DMatrixRMaj(newV.numRows, newV.numCols);
+                CommonOps_DDRM.divide(newV, this.argLearningRate, newV2);
+                CommonOps_DDRM.subtract(this.W2, newV2, this.W2);
+            }
+            case UPDATE_B1 -> {
+                DMatrixRMaj v = this.velocity.get("db1");
+                DMatrixRMaj temp = new DMatrixRMaj(v);
+                CommonOps_DDRM.divide(v, 1 / this.argMomentumTerm, temp);
+                DMatrixRMaj temp2 = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.divide(derivative, 1 / (1 - this.argMomentumTerm), temp2);
+
+                DMatrixRMaj newV = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.add(temp, temp2, newV);
+                this.velocity.put("db1", newV);
+
+                DMatrixRMaj newV2 = new DMatrixRMaj(newV.numRows, newV.numCols);
+                CommonOps_DDRM.divide(newV, this.argLearningRate, newV2);
+                CommonOps_DDRM.subtract(this.b1, newV2, this.b1);
+            }
+            case UPDATE_B2 -> {
+                DMatrixRMaj v = this.velocity.get("db2");
+                DMatrixRMaj temp = new DMatrixRMaj(v);
+                CommonOps_DDRM.divide(v, 1 / this.argMomentumTerm, temp);
+                DMatrixRMaj temp2 = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.divide(derivative, 1 / (1 - this.argMomentumTerm), temp2);
+
+                DMatrixRMaj newV = new DMatrixRMaj(derivative.numRows, derivative.numCols);
+                CommonOps_DDRM.add(temp, temp2, newV);
+                this.velocity.put("db2", newV);
+
+                DMatrixRMaj newV2 = new DMatrixRMaj(newV.numRows, newV.numCols);
+                CommonOps_DDRM.divide(newV, this.argLearningRate, newV2);
+                CommonOps_DDRM.subtract(this.b2, newV2, this.b2);
+            }
+            default -> System.out.println("Please only update W1, W2, B1, B2");
+        }
+    }
+
     public void update_parameters(Grads grads) {
         DMatrixRMaj dW1 = grads.dW1;
         DMatrixRMaj dW2 = grads.dW2;

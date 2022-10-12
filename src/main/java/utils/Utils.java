@@ -13,6 +13,9 @@ public class Utils {
             e.printStackTrace();
         }
 
+        writer.append(fileName);
+        writer.append("\n");
+
         for (Double aDouble : list) {
             assert writer != null;
             writer.append(String.valueOf(aDouble));
