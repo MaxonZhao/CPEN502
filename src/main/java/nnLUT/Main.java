@@ -51,6 +51,7 @@ public class Main {
                 -0.5,
                 0.5,
                 true,
+                false,
                 binaryX,
                 binaryY
                 );
@@ -65,6 +66,7 @@ public class Main {
                 1.0,
                 -0.5,
                 0.5,
+                false,
                 false,
                 binaryX,
                 binaryY
@@ -81,6 +83,7 @@ public class Main {
                 -0.5,
                 0.5,
                 true,
+                false,
                 bipolarX,
                 bipolarY
         );
@@ -96,6 +99,7 @@ public class Main {
                 -0.5,
                 0.5,
                 false,
+                false,
                 bipolarX,
                 bipolarY
         );
@@ -106,6 +110,7 @@ public class Main {
 //        bipolarNeuralNet.initializeBias();
 
         ArrayList<Double> errors;
+
         errors = binaryNeuralNetWithMomentum.train();
         binaryNeuralNetWithMomentum.save("BinaryWithMomentum.csv", errors);
 

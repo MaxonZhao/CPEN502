@@ -67,6 +67,8 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
     private double weightLowerBound;
     private double weightUpperBound;
 
+    private boolean isBatchUpdate;
+
 //    private double[][] weights;
 
     public DMatrixRMaj W1;
@@ -96,6 +98,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
             double weightLowerBound,
             double weightUpperBound,
             boolean withMomentum,
+            boolean isBatchUpdate,
             DMatrixRMaj input,
             DMatrixRMaj expectedOutput) {
 
@@ -112,6 +115,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         this.expectedOutput = expectedOutput;
         this.m = input.numCols;
         this.withMomentum = withMomentum;
+        this.isBatchUpdate = isBatchUpdate;
 
         this.velocity = new HashMap<>();
         this.initializeWeights();
@@ -307,20 +311,26 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj db2Compressed = new DMatrixRMaj(this.b2.numRows, this.b2.numCols);
         CommonOps_DDRM.sumRows(db2, db2Compressed);
 //        CommonOps_DDRM.divide(db2Compressed, m);
-        if (this.withMomentum)
-            this.update_parameter_momentum(db2Compressed, UPDATE_B2);
-        else
-            this.update_parameter(db2Compressed, UPDATE_B2);
+        if (!isBatchUpdate) {
+            if (this.withMomentum)
+                this.update_parameter_momentum(db2Compressed, UPDATE_B2);
+            else
+                this.update_parameter(db2Compressed, UPDATE_B2);
+        }
+
 
         DMatrixRMaj A1Trans = new DMatrixRMaj(A1);
         CommonOps_DDRM.transpose(A1Trans);
         DMatrixRMaj dW2 = new DMatrixRMaj(db2.numRows, A1Trans.numCols);
         CommonOps_DDRM.mult(dZ2, A1Trans, dW2);
 //        CommonOps_DDRM.divide(dW2, m);
-        if (this.withMomentum)
-            this.update_parameter_momentum(dW2, UPDATE_W2);
-        else
-            this.update_parameter(dW2, UPDATE_W2);
+
+        if (!this.isBatchUpdate) {
+            if (this.withMomentum)
+                this.update_parameter_momentum(dW2, UPDATE_W2);
+            else
+                this.update_parameter(dW2, UPDATE_W2);
+        }
 
         DMatrixRMaj t2 = new DMatrixRMaj(db2.numRows, W2.numCols);
         DMatrixRMaj W2Trans = new DMatrixRMaj(W2);
@@ -339,20 +349,24 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         DMatrixRMaj db1Compressed = new DMatrixRMaj(b1.numRows, b1.numCols);
         CommonOps_DDRM.sumRows(db1, db1Compressed);
 //        CommonOps_DDRM.divide(db1Compressed, m);
-        if (this.withMomentum)
-            this.update_parameter_momentum(db1Compressed, UPDATE_B1);
-        else
-            this.update_parameter(db1Compressed, UPDATE_B1);
+        if (!this.isBatchUpdate) {
+            if (this.withMomentum)
+                this.update_parameter_momentum(db1Compressed, UPDATE_B1);
+            else
+                this.update_parameter(db1Compressed, UPDATE_B1);
+        }
 
         DMatrixRMaj XTrans = new DMatrixRMaj(X);
         CommonOps_DDRM.transpose(XTrans);
         DMatrixRMaj dW1 = new DMatrixRMaj(db1.numRows, XTrans.numCols);
         CommonOps_DDRM.mult(dZ1, XTrans, dW1);
 //        CommonOps_DDRM.divide(dW1, m);
-        if (this.withMomentum)
-            this.update_parameter_momentum(dW1, UPDATE_W1);
-        else
-            this.update_parameter(dW1, UPDATE_W1);
+        if (!this.isBatchUpdate) {
+            if (this.withMomentum)
+                this.update_parameter_momentum(dW1, UPDATE_W1);
+            else
+                this.update_parameter(dW1, UPDATE_W1);
+        }
 
 
 
@@ -361,7 +375,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
 //        CommonOps_DDRM.sumRows(db1, db1Compressed);
 //        CommonOps_DDRM.sumRows(db2, db2Compressed);
 //        CommonOps_DDRM.divide(db1Compressed, m);
-//        CommonOps_DDRM.divide(db2Compressed, m);
+//        CommonOps_DDRM.divide(db2Compressed, m)
         return new Grads(dW1, dW2, db1Compressed, db2Compressed);
     }
 
@@ -468,7 +482,7 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
         }
     }
 
-    public void update_parameters(Grads grads) {
+    public void batch_update(Grads grads) {
         DMatrixRMaj dW1 = grads.dW1;
         DMatrixRMaj dW2 = grads.dW2;
         DMatrixRMaj db1 = grads.db1;
@@ -526,7 +540,8 @@ public class NeuralNet implements NeuralNetInterface, CommonInterface {
             System.out.println("Error rate for current epoch: " + errorRate);
             errors.add(errorRate);
             Grads grads = this.backwardPropagation(cache, this.input, this.expectedOutput);
-//            this.update_parameters(grads);
+            if (this.isBatchUpdate)
+                this.batch_update(grads);
         } while (errorRate >= NeuralNetInterface.errorThreshHold);
 
         System.out.println("=====================  MODEL TRAINED SUCCESSFULLY !  =======================");

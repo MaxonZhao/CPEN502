@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 df = pd.read_csv('./BinaryWithMomentum.csv', 'r')
-# df = pd.read_csv('./BinaryWithNoMomentum.csv', 'r')
-# df = pd.read_csv('./BipolarWithMomentum.csv', 'r')
+df = pd.read_csv('./BinaryWithNoMomentum.csv', 'r')
+df = pd.read_csv('./BipolarWithMomentum.csv', 'r')
 # df = pd.read_csv('./BipolarWithNoMomentum.csv', 'r')
 
 
